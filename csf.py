@@ -33,3 +33,31 @@ def csf( G, basis = 'power' ):
 		return SFASchur( QQ )( csf )
 	else:
 		return csf
+		
+def getCsfPowerSumCoefficients( G ):
+	"""Simply returns the coefficients of the CSF of G in the power sum basis.
+	   Using a dictionary to keep track of the coefficients is much faster than
+	   actually returning a symmetric function, so this is a faster way to
+	   compare the CSF of two graphs than using the csf() function and creating
+	   an actual Symmetric Function object in Sage."""
+
+	n = G.num_verts()    # Number of vertices in the graph
+	
+	# A spanning subgraph of G has all its vertices, but only a subset of edges.
+	# We want to consider all such edge subsets, so we take their powerset.
+	powersetOfEdges = list( powerset( G.edges() ) )
+
+	from collections import defaultdict
+	csf = defaultdict( int )
+	for s in powersetOfEdges:
+		g = Graph( n )
+		g.add_edges( s )
+		# Create the partition whose parts are equal fo the vertex sizes
+		# of the connected components of the spanning subgraph of G with
+		# edge set S
+		lambdaOfS = [len( component ) for component in g.connected_components()]
+		
+		# Add this power-sum term to the CSF coefficient dictionary
+		csf[tuple( lambdaOfS )] += ( -1 )^len( s )
+
+	return csf
