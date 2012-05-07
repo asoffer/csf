@@ -1,0 +1,5 @@
+You can run a .py or .pyx file in the Sage terminal using the command
+
+load <filename>
+
+Or you can copy/paste the text in these files into the online Sage Notebook and run them there.
