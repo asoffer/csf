@@ -19,7 +19,7 @@ def csf( G, basis = 'power' ):
 		lambdaOfS = [len( component ) for component in g.connected_components()]
 		
 		# Add this power-sum term to the CSF
-		csf += ( ( -1 )^len( s ) ) * SFAPower( QQ )( lambdaOfS )
+		csf += ( ( -1 )**len( s ) ) * SFAPower( QQ )( lambdaOfS )
 
 	if basis[0] == 'p':
 		return csf
@@ -58,6 +58,6 @@ def getCsfPowerSumCoefficients( G ):
 		lambdaOfS = [len( component ) for component in g.connected_components()]
 		
 		# Add this power-sum term to the CSF coefficient dictionary
-		csf[tuple( lambdaOfS )] += ( -1 )^len( s )
+		csf[tuple( lambdaOfS )] += ( -1 )**len( s )
 
 	return csf
