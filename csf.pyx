@@ -10,7 +10,7 @@ cdef extern from "math.h":
 # Compute the Gray code of a given number. Gray_code( n ) = n xor floor( n ).
 cdef inline unsigned long long getGrayCode( unsigned long long n ): return ( n >> 1 ) ^ n
 
-def fastCsf( object G ):
+cdef dict fastCsf( object G ):
 	cdef unsigned long long i = 1
 	cdef unsigned long long g1
 	cdef unsigned long long g2
@@ -19,13 +19,14 @@ def fastCsf( object G ):
 	cdef long n = G.num_verts()		# Degree of G
 	cdef object H = Graph( n, implementation = 'c_graph', sparse = True )
 	cdef SparseGraph sparseH = <SparseGraph> H._backend._cg
-	cdef object edgeSet = G.edges()
+	cdef list edgeSet = G.edges()
 
-	cdef object csf = defaultdict( int )
-	cdef object lambdaOfS = [1] * n
+	cdef dict csf = <dict>defaultdict( int )
+	cdef list lambdaOfS = [1] * n
 	csf[tuple( lambdaOfS )] += 1
 	
 	cdef unsigned long long powersetCardinality = 2 ** len( edgeSet )
+	cdef int sign = -1
 	while( i < powersetCardinality ):
 		g1 = getGrayCode( i - 1 )
 		g2 = getGrayCode( i )
@@ -47,7 +48,8 @@ def fastCsf( object G ):
 		# edge set S
 		lambdaOfS = [len( component ) for component in H.connected_components()]
 		# Add this power-sum term to the CSF coefficient dictionary
-		csf[tuple( lambdaOfS )] += ( -1 ) ** H.num_edges()
+		csf[tuple( lambdaOfS )] += sign
+		sign = -sign
 		
 		i += 1
 
