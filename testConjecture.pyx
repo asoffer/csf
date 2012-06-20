@@ -53,8 +53,8 @@ class SubsetGenerator:
 				self.process( self.k, lastInArray )
 
 	def process( self, posChanged, newValue ):
-		self.deltas.append( (self.subset[posChanged - 1], newValue) )
-		self.subset[posChanged - 1] = newValue
+		self.deltas.append( (self.subset[posChanged - 1], newValue - 1) )
+		self.subset[posChanged - 1] = newValue - 1
 		self.L.append( self.subset[:] )
 
 	def generateSubsets( self, k ):
@@ -63,7 +63,7 @@ class SubsetGenerator:
 		self.k = k
 		self.subset = range( k )
 
-		self.process( 1, 0 )
+		self.process( 1, 1 )
 		self.forward( 1, 0 )
 
 		return ( self.L, self.deltas )
@@ -114,7 +114,7 @@ cdef testConjecture( int n ):
 	cdef list edgeSet
 	cdef list edgeDeltas
 	cdef tuple edgeChange
-	cdef object subsetGen = SubsetGenerator( n - 2 )	# Generate subsets of indices to edges
+	cdef object subsetGen = SubsetGenerator( n - 1 )	# Generate subsets of indices to edges
 	cdef list lambdaOfS
 	cdef list partialCsfList
 	cdef dict currPartialCsf
@@ -131,15 +131,11 @@ cdef testConjecture( int n ):
 	for degSeq in treesByDegSeq:
 		treeList = treesByDegSeq[degSeq]
 		print "Working with degSeq =",degSeq,", count =",len( treeList )
-		settled = False
-		if settledCase( degSeq ):
-			print "\tSettled case"
-			settled = True
 		k = 3
 		# Continue incrementing k and taking subsequently larger k-slices
 		# in an attempt to eliminate trees with the same CSF
-		while( k < n - 1 and len( treeList ) > 1 and not settled ):
-			print "\tk =",k
+		while( k < n and len( treeList ) > 1 ):
+			print "\tk =",k,
 
 			additive = ( -1 ) ** k
 			# This is the k-slice, a nomenclature in development
@@ -151,15 +147,17 @@ cdef testConjecture( int n ):
 				currPartialCsf = <dict>defaultdict( int )
 				temp_t = Graph( n, implementation = 'c_graph', sparse = True )
 				sparse_temp_t = <SparseGraph> temp_t._backend._cg
+				
 				for e in range( k ):
 					temp_t.add_edge( edgeSet[e] )
 				lambdaOfS = [len( c ) for c in temp_t.connected_components()]
 				currPartialCsf[tuple( lambdaOfS )] += additive
 				edgeDeltas.pop( 0 )
+
 				for edgeChange in edgeDeltas:
 					removeEdge = edgeSet[edgeChange[0]]
 					addEdge = edgeSet[edgeChange[1]]
-
+					
 					sparse_temp_t.del_arc_unsafe( removeEdge[0], removeEdge[1] )
 					sparse_temp_t.del_arc_unsafe( removeEdge[1], removeEdge[0] )
 					sparse_temp_t.add_arc_unsafe( addEdge[0], addEdge[1] )
@@ -175,33 +173,35 @@ cdef testConjecture( int n ):
 			i = 0
 			j = 0
 			size = len( partialCsfList )
-			treesToRemove = []
-			while( i < size - 1 ):
+			treesToKeep = []
+			while( i < size ):
 				j = i + 1
 				while( j < size ):
 					csf1 = partialCsfList[i]
 					csf2 = partialCsfList[j]
-					if csf1 != csf2:
-						treesToRemove.append( i )
-						treesToRemove.append( j )
+					if csf1 == csf2:
+						treesToKeep.append( i )
+						treesToKeep.append( j )
 					j += 1
 				i += 1
 
-			treesToRemove = list( set( treesToRemove ) )
+			treesToKeep = list( set( treesToKeep ) )
+			treesKept = []
+			for idx in treesToKeep:
+				treesKept.append( treeList[idx] )
+			treeList = treesKept[:]
 
-			# Remove all of the trees with different k-slices
-			idx = 0
-			tempList = treeList[:]
-			for idx in xrange( len( tempList ) ):
-				if idx in treesToRemove:
-					treeList.remove( tempList[idx] )
-
-			print "\tRemoved ", len( treesToRemove ),"trees,",len( treeList ),"left to consider"
+			print "\tRemoved", size - len( treesKept ),"trees,",len( treeList ),"left to consider"
 			treesByDegSeq[degSeq] = treeList
 			k += 1
 
-		if( len( treeList ) <= 1 or settledCase( degSeq ) ):
+		if( len( treeList ) <= 1 ):
 			treesByDegSeq[degSeq] = []
+		else:
+			print "COUNTER-EXAMPLE FOUND!"
+			print degSeq
+			for counterexample in treeList:
+				print counterexample.edges( labels = False )
 
 	# Once we're all done, print the length of the lists of trees with the same
 	# degree sequence. If each is 0, then the conjecture has been verified
@@ -212,4 +212,5 @@ cdef testConjecture( int n ):
 # I can get up to about order 17 on my VM (quite limited resources), but at 18
 # my VM starts to hang/freeze up (probably due to digging into swap space, and
 # taking an increasing amount of time to actually generate the trees.
-testConjecture( 18 )
+testConjecture( 15 )
+
