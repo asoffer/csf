@@ -6,6 +6,13 @@
 #include <iostream>
 using namespace std;
 
+Tree::Tree() :
+	mOrder( 0 ),
+	mAdj( NULL ),
+	mDegrees( NULL )
+{
+}
+
 Tree::Tree( unsigned int order ) :
 	mOrder( order )
 {

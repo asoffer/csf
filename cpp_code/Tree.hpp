@@ -12,6 +12,7 @@ struct Edge
 class Tree
 {
 	public:
+		Tree();
 		Tree( unsigned int order );
 		~Tree();
 
