@@ -74,7 +74,7 @@ const SubsetDelta* const SubsetDeltaGenerator::getDeltasForSubsetsOfFixedLength(
 			mCurrSubset[i] = i;
 		}
 
-		process( 1, 0 );
+		process( 1, 1 );
 		forward( 1, 0 );
 
 		return mDeltas;
@@ -123,9 +123,9 @@ void SubsetDeltaGenerator::process( int posChanged, int newValue )
 {
 	SubsetDelta d;
 	d.replaceThis = mCurrSubset[posChanged - 1];
-	d.replacer = newValue;
+	d.replacer = newValue - 1;
 	mDeltas[mNumSubsetsOfLengthK++] = d;
 
-	mCurrSubset[posChanged - 1] = newValue;
+	mCurrSubset[posChanged - 1] = newValue - 1;
 }
 
