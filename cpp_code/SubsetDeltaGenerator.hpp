@@ -3,8 +3,8 @@
 
 struct SubsetDelta
 {
-	unsigned int replaceThis;
-	unsigned int replacer;
+	unsigned int oldValue;
+	unsigned int newValue;
 };
 
 class SubsetDeltaGenerator

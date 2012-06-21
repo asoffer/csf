@@ -83,7 +83,7 @@ const SubsetDelta* const SubsetDeltaGenerator::getDeltasForSubsetsOfFixedLength(
 
 void SubsetDeltaGenerator::forward( int pointer, int difference )
 {
-	if( ( pointer <  (int)k ) && ( difference - pointer < (int)n - (int)k - 1 ) )
+	if( ( pointer < (int)k ) && ( difference - pointer < (int)n - (int)k - 1 ) )
 	{
 		forward( pointer + 2, difference + 2 );
 		process( pointer + 1, n - k + pointer + 1 );
@@ -122,8 +122,8 @@ void SubsetDeltaGenerator::reverse( int pointer, int difference )
 void SubsetDeltaGenerator::process( int posChanged, int newValue )
 {
 	SubsetDelta d;
-	d.replaceThis = mCurrSubset[posChanged - 1];
-	d.replacer = newValue - 1;
+	d.oldValue = mCurrSubset[posChanged - 1];
+	d.newValue = newValue - 1;
 	mDeltas[mNumSubsetsOfLengthK++] = d;
 
 	mCurrSubset[posChanged - 1] = newValue - 1;
