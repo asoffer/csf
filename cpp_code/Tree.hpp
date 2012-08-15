@@ -2,6 +2,7 @@
 #define TREE_HPP
 
 #include <vector>
+#include <string>
 
 struct Edge
 {
@@ -14,6 +15,7 @@ class Tree
 	public:
 		Tree();
 		Tree( unsigned int order );
+		Tree( const Tree & that );
 		~Tree();
 
 		unsigned int getOrder() const { return mOrder; };
@@ -25,7 +27,8 @@ class Tree
 
 		std::vector<Edge> getEdges() const;
 		unsigned int* getDegreeSequence() const;
-		std::vector<unsigned int> getConnectedComponentSizes() const;
+		void getDegreeSequence( std::string & degreeSeqnence ) const;
+		void getConnectedComponentSizes( std::string & componentSizes ) const;
 
 		void print() const;
 

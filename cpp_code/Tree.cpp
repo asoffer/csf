@@ -3,6 +3,8 @@
 #include <queue>
 #include <algorithm>
 #include <cstring>
+#include <sstream>
+#include <string>
 #include <iostream>
 using namespace std;
 
@@ -16,18 +18,23 @@ Tree::Tree() :
 Tree::Tree( unsigned int order ) :
 	mOrder( order )
 {
-	// Simple, undirected graph, so we know the
-	// adjacency matrix will be symmetric, and have
-	// 0 values along the diagonal, so we can
-	// use only the upper triangular part of this
-	// matrix to save some space.
 	int size = order * order;
 	mAdj = new unsigned char[size];
-
 	mDegrees = new unsigned int[mOrder];
 
 	memset( mAdj, 0, sizeof( unsigned char ) * size );
 	memset( mDegrees, 0, sizeof( unsigned int ) * mOrder );
+}
+
+Tree::Tree( const Tree & that )
+{
+	int size = that.mOrder * that.mOrder;
+	mAdj = new unsigned char[size];
+	mDegrees = new unsigned int[that.mOrder];
+
+	memcpy( mAdj, that.mAdj, sizeof( unsigned char ) * size );
+	memcpy( mDegrees, that.mDegrees, sizeof( unsigned int ) * that.mOrder );
+	mOrder = that.mOrder;
 }
 
 Tree::~Tree()
@@ -114,7 +121,7 @@ unsigned int* Tree::getDegreeSequence() const
 	return degreeSequence;
 }
 
-std::vector<unsigned int> Tree::getConnectedComponentSizes() const
+void Tree::getConnectedComponentSizes( std::string & componentSizes ) const
 {
 	bool discovered[mOrder];
 	bool processed[mOrder];
@@ -123,7 +130,8 @@ std::vector<unsigned int> Tree::getConnectedComponentSizes() const
 	memset( processed, 0, sizeof( bool ) * mOrder );
 
 	queue<unsigned int> vertsToVisit;
-	vector<unsigned int> componentSizes;
+	vector<int> componentSizesVector;
+	ostringstream componentSizesStream;
 	unsigned int currentVertex;
 	unsigned int successorVertex;
 	unsigned int currentComponentSize = 1;
@@ -158,12 +166,37 @@ std::vector<unsigned int> Tree::getConnectedComponentSizes() const
 				}
 			}
 
-			componentSizes.push_back( currentComponentSize );
+			componentSizesVector.push_back( currentComponentSize );
 		}
 	}
 
-	std::sort( componentSizes.begin(), componentSizes.end(), std::greater<int>() );
-	return componentSizes;
+	std::sort( componentSizesVector.begin(), componentSizesVector.end(), std::greater<int>() );
+	for( unsigned int i = 0; i < componentSizesVector.size(); i++ )
+	{
+		componentSizesStream << componentSizesVector[i];
+		if( i != componentSizesVector.size() - 1 )
+		{
+			componentSizesStream << ",";
+		}
+	}
+
+	componentSizes = componentSizesStream.str();
+}
+
+void Tree::getDegreeSequence( std::string & degreeSequence ) const
+{
+	unsigned int *degSeq = getDegreeSequence();
+	stringstream ostr;
+	for( int i = 0; i < mOrder; i++ )
+	{
+		ostr << degSeq[i];
+		if( i != mOrder - 1 )
+		{
+			ostr << ",";
+		}
+	}
+	degreeSequence = ostr.str();
+	delete [] degSeq;
 }
 
 void Tree::print() const
@@ -185,21 +218,22 @@ void Tree::print() const
 	}
 }
 
-Tree & Tree::operator=( const Tree & rhs )
+Tree & Tree::operator=( const Tree & that )
 {
-	if( this == &rhs )
+	if( this != &that )
 	{
-		return *this;
+		delete [] mAdj;
+		delete [] mDegrees;
+
+		mOrder = that.mOrder;
+		int size = mOrder * mOrder;
+
+		mAdj = new unsigned char[size];
+		mDegrees = new unsigned int[mOrder];
+
+		memcpy( mAdj, that.mAdj, sizeof( unsigned char ) * ( size ) );
+		memcpy( mDegrees, that.mDegrees, sizeof( unsigned int ) * mOrder );
 	}
-
-	delete [] this->mAdj;
-	delete [] this->mDegrees;
-
-	this->mOrder = rhs.mOrder;
-	this->mAdj = new unsigned char[rhs.mOrder * rhs.mOrder];
-	memcpy( this->mAdj, rhs.mAdj, sizeof( unsigned char ) * ( rhs.mOrder * rhs.mOrder ) );
-	this->mDegrees = new unsigned int[rhs.mOrder];
-	memcpy( this->mDegrees, rhs.mDegrees, sizeof( unsigned int ) * rhs.mOrder );
 
 	return *this;
 }
