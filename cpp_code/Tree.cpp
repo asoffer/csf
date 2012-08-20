@@ -1,4 +1,5 @@
 #include "Tree.hpp"
+#include "Debug.hpp"
 #include <vector>
 #include <queue>
 #include <algorithm>
@@ -53,44 +54,29 @@ Tree::~Tree()
 
 bool Tree::adjacent( unsigned int u, unsigned int v ) const
 {
-	if( u == v || u > mOrder || v > mOrder )
-	{
-		return false;
-	}
-	else
-	{
-		return mAdj[u * mOrder + v] == 1;
-	}
+	fatalAssert( u < mOrder && v < mOrder, "adjacent() failed." );
+
+	return mAdj[u * mOrder + v] == 1;
 }
 
 void Tree::addEdge( unsigned int u, unsigned int v )
 {
-	if( u == v || u > mOrder || v > mOrder )
-	{
-		return;
-	}
-	else
-	{
-		mAdj[u * mOrder + v] = 1;
-		mAdj[v * mOrder + u] = 1;
-		mDegrees[u]++;
-		mDegrees[v]++;
-	}
+	fatalAssert( u != v && u < mOrder && v < mOrder, "addEdge() failed." );
+
+	mAdj[u * mOrder + v] = 1;
+	mAdj[v * mOrder + u] = 1;
+	mDegrees[u]++;
+	mDegrees[v]++;
 }
 
 void Tree::deleteEdge( unsigned int u, unsigned int v )
 {
-	if( u == v || u > mOrder || v > mOrder )
-	{
-		return;
-	}
-	else
-	{
-		mAdj[u * mOrder + v] = 0;
-		mAdj[v * mOrder + u] = 0;
-		mDegrees[u]--;
-		mDegrees[v]--;
-	}
+	fatalAssert( u != v && u < mOrder && v < mOrder, "deleteEdge() failed." );
+
+	mAdj[u * mOrder + v] = 0;
+	mAdj[v * mOrder + u] = 0;
+	mDegrees[u]--;
+	mDegrees[v]--;
 }
 
 std::vector<Edge> Tree::getEdges() const
@@ -201,21 +187,12 @@ void Tree::getDegreeSequence( std::string & degreeSequence ) const
 
 void Tree::print() const
 {
-	for( int i = 0; i < mOrder; i++ )
+	vector<Edge> edgeSet = getEdges();
+	for( unsigned int i = 0; i < edgeSet.size(); i++ )
 	{
-		for( int j = 0; j < mOrder; j++ )
-		{
-			if( adjacent( i, j ) )
-			{
-				cout << "1 ";
-			}
-			else
-			{
-				cout << "0 ";
-			}
-		}
-		cout << endl;
+		cout << "(" << edgeSet[i].u << ", " << edgeSet[i].v << ") ";
 	}
+	cout << endl;
 }
 
 Tree & Tree::operator=( const Tree & that )
