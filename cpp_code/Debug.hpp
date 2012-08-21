@@ -9,7 +9,7 @@
 // Change to 1 to turn them on
 // Change to 0 to turn them off
 #define ASSERTIONS_ON 0
-#define DEBUG_MESSAGES_ON 0
+#define DEBUG_MESSAGES_ON 1
 
 /***************************************
 * Assertion Macros

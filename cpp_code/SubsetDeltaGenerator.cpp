@@ -69,7 +69,7 @@ const SubsetDelta* const SubsetDeltaGenerator::getDeltasForSubsetsOfFixedLength(
 		mDeltas = new SubsetDelta[numSubsets];
 		mCurrSubset = new unsigned int[k];
 		
-		for( int i = 0; i < k; i++ )
+		for( unsigned int i = 0; i < k; i++ )
 		{
 			mCurrSubset[i] = i;
 		}

@@ -82,9 +82,9 @@ void Tree::deleteEdge( unsigned int u, unsigned int v )
 std::vector<Edge> Tree::getEdges() const
 {
 	std::vector<Edge> edges;
-	for( int i = 0; i < mOrder; i++ )
+	for( unsigned int i = 0; i < mOrder; i++ )
 	{
-		for( int j = i + 1; j < mOrder; j++ )
+		for( unsigned int j = i + 1; j < mOrder; j++ )
 		{
 			if( adjacent( i, j ) )
 			{
@@ -122,7 +122,7 @@ void Tree::getConnectedComponentSizes( std::string & componentSizes ) const
 	unsigned int successorVertex;
 	unsigned int currentComponentSize = 1;
 
-	for( int i = 0; i < mOrder; i++ )
+	for( unsigned int i = 0; i < mOrder; i++ )
 	{
 		if( discovered[i] == false )
 		{
@@ -138,7 +138,7 @@ void Tree::getConnectedComponentSizes( std::string & componentSizes ) const
 				currentComponentSize++;
 				processed[currentVertex] = true;
 
-				for( int j = 0; j < mOrder; j++ )
+				for( unsigned int j = 0; j < mOrder; j++ )
 				{
 					if( adjacent( currentVertex, j ) )
 					{
@@ -173,7 +173,7 @@ void Tree::getDegreeSequence( std::string & degreeSequence ) const
 {
 	unsigned int *degSeq = getDegreeSequence();
 	stringstream ostr;
-	for( int i = 0; i < mOrder; i++ )
+	for( unsigned int i = 0; i < mOrder; i++ )
 	{
 		ostr << degSeq[i];
 		if( i != mOrder - 1 )

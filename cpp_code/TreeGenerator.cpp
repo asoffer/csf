@@ -38,22 +38,15 @@ bool TreeGenerator::nextTree( Tree & t )
 	}
 
 	Tree tree( mNumVertices );
-	for( int i = 2; i <= mNumVertices; i++ )
+	for( unsigned int i = 2; i <= mNumVertices; i++ )
 	{
 		unsigned int u = i - 1;
 		unsigned int v = currentLevelSequence[i - 1] - 1;
 		tree.addEdge( u, v );
 	}
-/*
-	cout << "Edges: ";
-	vector<Edge> edges = tree.getEdges();
-	for( unsigned int i = 0; i < edges.size(); i++ )
-	{
-		cout << "(" << edges[i].u << ", " << edges[i].v << ") ";
-	}
-	cout << endl;
-*/
+	
 	t = tree;
+	return true;
 }
 
 void TreeGenerator::generateFirstLevelSequence()
@@ -88,11 +81,11 @@ void TreeGenerator::generateFirstLevelSequence()
 	{
 		L[i - 1] = i;
 	}
-	for( int i = k + 1; i <= mNumVertices; i++ )
+	for( unsigned int i = k + 1; i <= mNumVertices; i++ )
 	{
 		L[i - 1] = i - k + 1;
 	}
-	for( int i = 0; i < mNumVertices; i++ )
+	for( unsigned int i = 0; i < mNumVertices; i++ )
 	{
 		currentLevelSequence[i] = i;
 	}
@@ -118,11 +111,11 @@ void TreeGenerator::generateNextLevelSequence()
 	int n = mNumVertices;
 
 	if( c == n + 1 ||
-		p == h2 &&
-		( L[h1 - 1] == L[h2 - 1] + 1 &&
-		  n - h2 > r - h1 ||
-		  L[h1 - 1] == L[h2 - 1] &&
-		  n - h2 + 1 < r - h1 ) )
+		( p == h2 &&
+		( ( L[h1 - 1] == L[h2 - 1] + 1 &&
+		  n - h2 > r - h1 ) ||
+		  ( L[h1 - 1] == L[h2 - 1] &&
+		  n - h2 + 1 < r - h1 ) ) ) )
 	{
 		if( L[r - 1] > 3 )
 		{
