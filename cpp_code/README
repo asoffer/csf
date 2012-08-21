@@ -1,0 +1,8 @@
+This code tests the conjecture that no two non-isomorphic trees have the same chromatic symmetric function.
+
+To compile (on *nix system):
+	In a terminal window, navigate to the code's directory, and then type 'make' without the quotes. You'll need the g++ compiler, which should be installed on just about any *nix system.
+
+To run (once compiled):
+	Type './main X', without the quotes, where X is an integer. X will be the order of the trees you want the program to check.
+
