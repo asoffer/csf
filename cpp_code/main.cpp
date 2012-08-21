@@ -244,11 +244,7 @@ void testConjecture( int n )
 			k++;
 		}
 
-		if( treeList.size() <= 1 )
-		{
-			treeHash[ make_pair( degSeq, pathNums ) ].clear();
-		}
-		else
+		if( treeList.size() > 1 )
 		{
 			cout << "COUNTEREXAMPLE FOUND!" << endl;
 			cout << "Degree sequence: " << vectorToString( degSeq ) << endl;

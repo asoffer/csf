@@ -58,7 +58,6 @@ const SubsetDelta* const SubsetDeltaGenerator::getDeltasForSubsetsOfFixedLength(
 		if( mDeltas != NULL )
 		{
 			delete [] mDeltas;
-		
 		}
 		if( mCurrSubset != NULL )
 		{
