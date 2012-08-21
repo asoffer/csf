@@ -26,9 +26,8 @@ class Tree
 		void deleteEdge( unsigned int u, unsigned int v );
 
 		std::vector<Edge> getEdges() const;
-		unsigned int* getDegreeSequence() const;
-		void getDegreeSequence( std::string & degreeSeqnence ) const;
-		void getConnectedComponentSizes( std::string & componentSizes ) const;
+		void getDegreeSequence( std::vector<unsigned int> & degreeSeqnence ) const;
+		void getConnectedComponentSizes( std::vector<unsigned int> & componentSizes ) const;
 
 		void print() const;
 

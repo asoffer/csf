@@ -11,13 +11,26 @@
 #include <iostream>
 using namespace std;
 
-typedef map<string, int> CsfHash;
-typedef map<string, vector<Tree> > TreeHash;
-typedef map<string, int> kSlice;
+typedef map< vector<unsigned int>, int> CsfHash;
+typedef map< vector<unsigned int>, vector<Tree> > TreeHash;
+typedef map< vector<unsigned int>, int> kSlice;
 
 unsigned long long getGrayCode( unsigned long long n )
 {
 	return ( ( n >> 1 ) ^ n );
+}
+
+string vectorToString( const vector<unsigned int> & v )
+{
+	stringstream ostr;
+	for( unsigned int i = 0; i < v.size(); i++ )
+	{
+		ostr << v[i] << ",";
+	}
+
+	string result = ostr.str();
+	result.resize( result.size() - 1 );
+	return result;
 }
 
 void csf( const Tree & t, CsfHash & csf );
@@ -75,7 +88,7 @@ void csf( const Tree & t, CsfHash & csf )
 
 	vector<Edge> edgeSet = t.getEdges();
 
-	string componentSizes;
+	vector<unsigned int> componentSizes;
 	g.getConnectedComponentSizes( componentSizes );
 	csf[componentSizes] = 1;
 
@@ -107,7 +120,7 @@ void getTreesByDegreeSequence( int n, TreeHash & treesByDegSeq )
 {
 	Tree t;
 	TreeGenerator treeGen( n );
-	string degSeq;
+	vector<unsigned int> degSeq;
 	
 	while( treeGen.nextTree( t ) )
 	{
@@ -135,7 +148,8 @@ void computeKSlices( int n, int k, SubsetDeltaGenerator & subsetGen, const vecto
 		{
 			t.addEdge( edgeSet[i].u, edgeSet[i].v );
 		}
-		string lambdaOfS;
+
+		vector<unsigned int> lambdaOfS;
 		t.getConnectedComponentSizes( lambdaOfS );
 		currSlice[lambdaOfS] += additive;
 
@@ -208,9 +222,9 @@ void testConjecture( int n )
 		 it != treesByDegSeq.end();
 		 ++it )
 	{
-		string degSeq = it->first;
+		vector<unsigned int> degSeq = it->first;
 		vector<Tree> treeList = it->second;
-		debugMessage(( "Working with degSeq = %s, count = %d\n", degSeq.c_str(), (int)treeList.size() ));
+		debugMessage(( "Working with degSeq = %s :: count = %d\n", vectorToString( degSeq ).c_str(), (int)treeList.size() ));
 
 		int k = 3;
 		while( k < n and treeList.size() > 1 )
@@ -232,7 +246,7 @@ void testConjecture( int n )
 		else
 		{
 			cout << "COUNTEREXAMPLE FOUND!" << endl;
-			cout << degSeq << endl;
+			cout << "Degree sequence: " << vectorToString( degSeq ) << endl;
 			for( unsigned int i = 0; i < treeList.size(); i++ )
 			{
 				treeList[i].print(); 

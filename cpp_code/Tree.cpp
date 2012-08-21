@@ -99,16 +99,17 @@ std::vector<Edge> Tree::getEdges() const
 	return edges;
 }
 
-unsigned int* Tree::getDegreeSequence() const
+void Tree::getDegreeSequence( std::vector<unsigned int> & degreeSequence ) const
 {
-	unsigned int *degreeSequence = new unsigned int[mOrder];
-	memcpy( degreeSequence, mDegrees, sizeof( unsigned int ) * mOrder );
-	std::sort( degreeSequence, degreeSequence + mOrder, std::greater<int>() );
-	return degreeSequence;
+	degreeSequence.clear();
+	degreeSequence.insert( degreeSequence.end(), &mDegrees[0], &mDegrees[mOrder] );
+	std::sort( degreeSequence.begin(), degreeSequence.end(), std::greater<int>() );
 }
 
-void Tree::getConnectedComponentSizes( std::string & componentSizes ) const
+void Tree::getConnectedComponentSizes( std::vector<unsigned int> & componentSizes ) const
 {
+	componentSizes.clear();
+
 	bool discovered[mOrder];
 	bool processed[mOrder];
 
@@ -116,8 +117,6 @@ void Tree::getConnectedComponentSizes( std::string & componentSizes ) const
 	memset( processed, 0, sizeof( bool ) * mOrder );
 
 	queue<unsigned int> vertsToVisit;
-	vector<int> componentSizesVector;
-	ostringstream componentSizesStream;
 	unsigned int currentVertex;
 	unsigned int successorVertex;
 	unsigned int currentComponentSize = 1;
@@ -152,37 +151,11 @@ void Tree::getConnectedComponentSizes( std::string & componentSizes ) const
 				}
 			}
 
-			componentSizesVector.push_back( currentComponentSize );
+			componentSizes.push_back( currentComponentSize );
 		}
 	}
 
-	std::sort( componentSizesVector.begin(), componentSizesVector.end(), std::greater<int>() );
-	for( unsigned int i = 0; i < componentSizesVector.size(); i++ )
-	{
-		componentSizesStream << componentSizesVector[i];
-		if( i != componentSizesVector.size() - 1 )
-		{
-			componentSizesStream << ",";
-		}
-	}
-
-	componentSizes = componentSizesStream.str();
-}
-
-void Tree::getDegreeSequence( std::string & degreeSequence ) const
-{
-	unsigned int *degSeq = getDegreeSequence();
-	stringstream ostr;
-	for( unsigned int i = 0; i < mOrder; i++ )
-	{
-		ostr << degSeq[i];
-		if( i != mOrder - 1 )
-		{
-			ostr << ",";
-		}
-	}
-	degreeSequence = ostr.str();
-	delete [] degSeq;
+	std::sort( componentSizes.begin(), componentSizes.end(), std::greater<int>() );
 }
 
 void Tree::print() const
