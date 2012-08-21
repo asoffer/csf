@@ -2,6 +2,7 @@
 #include <map>
 #include <set>
 #include <algorithm>
+#include <utility>
 #include <sstream>
 #include <cmath>
 #include "Tree.hpp"
@@ -12,7 +13,8 @@
 using namespace std;
 
 typedef map< vector<unsigned int>, int> CsfHash;
-typedef map< vector<unsigned int>, vector<Tree> > TreeHash;
+typedef map< vector<unsigned int>, vector<Tree> > TreeByDegSeqHash;
+typedef map< pair< vector<unsigned int>, vector<unsigned int> >, vector<Tree> > DegSeqPathNumHash;
 typedef map< vector<unsigned int>, int> kSlice;
 
 unsigned long long getGrayCode( unsigned long long n )
@@ -35,7 +37,7 @@ string vectorToString( const vector<unsigned int> & v )
 
 void csf( const Tree & t, CsfHash & csf );
 void testCsf();
-void getTreesByDegreeSequence( int n, TreeHash & treesByDegSeq );
+void getTrees( int n, DegSeqPathNumHash & treeHash );
 void computeKSlices( int n, int k, SubsetDeltaGenerator & subsetGen, const vector<Tree> & treeList, vector<kSlice> & kSliceList ); 
 void cullTreesByKSlice( vector<Tree> & treeList, const vector<kSlice> & kSliceList );
 void testConjecture( int n );
@@ -116,16 +118,18 @@ void csf( const Tree & t, CsfHash & csf )
 	}
 }
 
-void getTreesByDegreeSequence( int n, TreeHash & treesByDegSeq )
+void getTrees( int n, DegSeqPathNumHash & treeHash )
 {
 	Tree t;
 	TreeGenerator treeGen( n );
 	vector<unsigned int> degSeq;
+	vector<unsigned int> pathNums;
 	
 	while( treeGen.nextTree( t ) )
 	{
-		t.getDegreeSequence( degSeq ); 
-		treesByDegSeq[degSeq].push_back( t );
+		t.getDegreeSequence( degSeq );
+		t.getPathNums( pathNums );
+		treeHash[ make_pair( degSeq, pathNums ) ].push_back( t );
 	}
 }
 
@@ -214,17 +218,18 @@ void cullTreesByKSlice( vector<Tree> & treeList, const vector<kSlice> & kSliceLi
 
 void testConjecture( int n )
 {
-	TreeHash treesByDegSeq;
-	getTreesByDegreeSequence( n, treesByDegSeq );
+	DegSeqPathNumHash treeHash;
+	getTrees( n, treeHash );
 	SubsetDeltaGenerator subsetGen( n - 1 );
 
-	for( TreeHash::iterator it = treesByDegSeq.begin();
-		 it != treesByDegSeq.end();
+	for( DegSeqPathNumHash::iterator it = treeHash.begin();
+		 it != treeHash.end();
 		 ++it )
 	{
-		vector<unsigned int> degSeq = it->first;
+		vector<unsigned int> degSeq = it->first.first;
+		vector<unsigned int> pathNums = it->first.second;
 		vector<Tree> treeList = it->second;
-		debugMessage(( "Working with degSeq = %s :: count = %d\n", vectorToString( degSeq ).c_str(), (int)treeList.size() ));
+		debugMessage(( "Working with degSeq = %s, pathNums = %s :: count = %d\n", vectorToString( degSeq ).c_str(), vectorToString( numPaths ).c_str(), (int)treeList.size() ));
 
 		int k = 3;
 		while( k < n and treeList.size() > 1 )
@@ -235,13 +240,13 @@ void testConjecture( int n )
 			computeKSlices( n, k, subsetGen, treeList, kSliceList );
 			cullTreesByKSlice( treeList, kSliceList );
 			
-			treesByDegSeq[degSeq] = treeList;
+			treeHash[ make_pair( degSeq, pathNums ) ] = treeList;
 			k++;
 		}
 
 		if( treeList.size() <= 1 )
 		{
-			treesByDegSeq[degSeq].clear();
+			treeHash[ make_pair( degSeq, pathNums ) ].clear();
 		}
 		else
 		{

@@ -158,6 +158,28 @@ void Tree::getConnectedComponentSizes( std::vector<unsigned int> & componentSize
 	std::sort( componentSizes.begin(), componentSizes.end(), std::greater<int>() );
 }
 
+void Tree::getPathNums( std::vector<unsigned int> & pathNums ) const
+{
+	pathNums.clear();
+	for( unsigned int i = 0; i < mOrder; i++ )
+	{
+		pathNums.push_back( 0 );
+	}
+
+	bool * visited = new bool[mOrder];
+	for( unsigned int i = 0; i < mOrder; i++ )
+	{
+		memset( visited, 0, sizeof( bool ) * mOrder ); 
+		pathNumsDfs( i, 1, visited, pathNums );
+	}
+	delete [] visited;
+
+	for( unsigned int i = 0; i < pathNums.size(); i++ )
+	{
+		pathNums[i] /= 2;
+	}
+}
+
 void Tree::print() const
 {
 	vector<Edge> edgeSet = getEdges();
@@ -186,5 +208,18 @@ Tree & Tree::operator=( const Tree & that )
 	}
 
 	return *this;
+}
+
+void Tree::pathNumsDfs( int i, int count, bool *& visited, std::vector<unsigned int> & pathNums ) const
+{
+	visited[i] = true;
+	for( unsigned int j = 0; j < mOrder; j++ )
+	{
+		if( adjacent( i, j ) && !visited[j] )
+		{
+			pathNums[count]++;
+			pathNumsDfs( j, count + 1, visited, pathNums );
+		}
+	}
 }
 

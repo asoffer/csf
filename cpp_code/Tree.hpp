@@ -28,12 +28,15 @@ class Tree
 		std::vector<Edge> getEdges() const;
 		void getDegreeSequence( std::vector<unsigned int> & degreeSeqnence ) const;
 		void getConnectedComponentSizes( std::vector<unsigned int> & componentSizes ) const;
+		void getPathNums( std::vector<unsigned int> & pathNums ) const;
 
 		void print() const;
 
 		Tree & operator=( const Tree & rhs );
 	
 	private:
+		void pathNumsDfs( int i, int count, bool *& visited, std::vector<unsigned int> & pathNums ) const;
+
 		unsigned int	mOrder;
 		unsigned char	*mAdj;		// Adjacency matrix
 		unsigned int	*mDegrees;
