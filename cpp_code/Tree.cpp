@@ -1,4 +1,5 @@
 #include "Tree.hpp"
+#include "DisjointSet.hpp"
 #include "Debug.hpp"
 #include <vector>
 #include <queue>
@@ -12,7 +13,8 @@ using namespace std;
 Tree::Tree() :
 	mOrder( 0 ),
 	mAdj( NULL ),
-	mDegrees( NULL )
+	mDegrees( NULL ),
+	mComponents( NULL )
 {
 }
 
@@ -22,6 +24,7 @@ Tree::Tree( unsigned int order ) :
 	int size = order * order;
 	mAdj = new unsigned char[size];
 	mDegrees = new unsigned int[mOrder];
+	mComponents = new DisjointSet( order );
 
 	memset( mAdj, 0, sizeof( unsigned char ) * size );
 	memset( mDegrees, 0, sizeof( unsigned int ) * mOrder );
@@ -32,6 +35,7 @@ Tree::Tree( const Tree & that )
 	int size = that.mOrder * that.mOrder;
 	mAdj = new unsigned char[size];
 	mDegrees = new unsigned int[that.mOrder];
+	mComponents = new DisjointSet( *that.mComponents );
 
 	memcpy( mAdj, that.mAdj, sizeof( unsigned char ) * size );
 	memcpy( mDegrees, that.mDegrees, sizeof( unsigned int ) * that.mOrder );
@@ -40,16 +44,9 @@ Tree::Tree( const Tree & that )
 
 Tree::~Tree()
 {
-	if( mAdj != NULL )
-	{
-		delete [] mAdj;
-		mAdj = NULL;
-	}
-	if( mDegrees != NULL )
-	{
-		delete [] mDegrees;
-		mDegrees = NULL;
-	}
+	delete [] mAdj;
+	delete [] mDegrees;
+	delete mComponents;
 }
 
 bool Tree::adjacent( unsigned int u, unsigned int v ) const
@@ -62,21 +59,27 @@ bool Tree::adjacent( unsigned int u, unsigned int v ) const
 void Tree::addEdge( unsigned int u, unsigned int v )
 {
 	fatalAssert( u != v && u < mOrder && v < mOrder, "addEdge() failed." );
+	fatalAssert( !adjacent( u, v ), "Tried to add edge that was already present." );
 
 	mAdj[u * mOrder + v] = 1;
 	mAdj[v * mOrder + u] = 1;
 	mDegrees[u]++;
 	mDegrees[v]++;
+
+	mComponents->setUnion( u, v );
 }
 
 void Tree::deleteEdge( unsigned int u, unsigned int v )
 {
 	fatalAssert( u != v && u < mOrder && v < mOrder, "deleteEdge() failed." );
+	fatalAssert( adjacent( u, v ), "Tried to delete edge that wasn't present." );
 
 	mAdj[u * mOrder + v] = 0;
 	mAdj[v * mOrder + u] = 0;
 	mDegrees[u]--;
 	mDegrees[v]--;
+
+	mComponents->split( u, v );
 }
 
 std::vector<Edge> Tree::getEdges() const
@@ -108,54 +111,7 @@ void Tree::getDegreeSequence( std::vector<unsigned int> & degreeSequence ) const
 
 void Tree::getConnectedComponentSizes( std::vector<unsigned int> & componentSizes ) const
 {
-	componentSizes.clear();
-
-	bool discovered[mOrder];
-	bool processed[mOrder];
-
-	memset( discovered, 0, sizeof( bool ) * mOrder );
-	memset( processed, 0, sizeof( bool ) * mOrder );
-
-	queue<unsigned int> vertsToVisit;
-	unsigned int currentVertex;
-	unsigned int successorVertex;
-	unsigned int currentComponentSize = 1;
-
-	for( unsigned int i = 0; i < mOrder; i++ )
-	{
-		if( discovered[i] == false )
-		{
-			vertsToVisit.push( i );
-			discovered[i] = true;
-
-			currentComponentSize = 0;
-			while( !vertsToVisit.empty() )
-			{
-				currentVertex = vertsToVisit.front();
-				vertsToVisit.pop();
-
-				currentComponentSize++;
-				processed[currentVertex] = true;
-
-				for( unsigned int j = 0; j < mOrder; j++ )
-				{
-					if( adjacent( currentVertex, j ) )
-					{
-						successorVertex = j;
-						if( discovered[successorVertex] == false )
-						{
-							vertsToVisit.push( successorVertex );
-							discovered[successorVertex] = true;
-						}
-					}
-				}
-			}
-
-			componentSizes.push_back( currentComponentSize );
-		}
-	}
-
-	std::sort( componentSizes.begin(), componentSizes.end(), std::greater<int>() );
+	mComponents->getSetSizes( componentSizes );
 }
 
 void Tree::getPathNums( std::vector<unsigned int> & pathNums ) const
@@ -196,12 +152,14 @@ Tree & Tree::operator=( const Tree & that )
 	{
 		delete [] mAdj;
 		delete [] mDegrees;
+		delete mComponents;
 
 		mOrder = that.mOrder;
 		int size = mOrder * mOrder;
 
 		mAdj = new unsigned char[size];
 		mDegrees = new unsigned int[mOrder];
+		mComponents = new DisjointSet( *that.mComponents );
 
 		memcpy( mAdj, that.mAdj, sizeof( unsigned char ) * ( size ) );
 		memcpy( mDegrees, that.mDegrees, sizeof( unsigned int ) * mOrder );

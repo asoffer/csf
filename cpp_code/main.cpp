@@ -37,10 +37,10 @@ string vectorToString( const vector<unsigned int> & v )
 
 void csf( const Tree & t, CsfHash & csf );
 void testCsf();
-void getTrees( int n, DegSeqPathNumHash & treeHash );
-void computeKSlices( int n, int k, SubsetDeltaGenerator & subsetGen, const vector<Tree> & treeList, vector<kSlice> & kSliceList ); 
+void getTrees( unsigned int n, DegSeqPathNumHash & treeHash );
+void computeKSlices( unsigned int n, unsigned int k, SubsetDeltaGenerator & subsetGen, const vector<Tree> & treeList, vector<kSlice> & kSliceList ); 
 void cullTreesByKSlice( vector<Tree> & treeList, const vector<kSlice> & kSliceList );
-void testConjecture( int n );
+void testConjecture( unsigned int n );
 
 int main( int argc, char **argv )
 {
@@ -50,7 +50,7 @@ int main( int argc, char **argv )
 		return 0;
 	}
 
-	int n = atoi( argv[1] );
+	unsigned int n = atoi( argv[1] );
 	testConjecture( n );
 	//testCsf();
 	return 0;
@@ -118,7 +118,7 @@ void csf( const Tree & t, CsfHash & csf )
 	}
 }
 
-void getTrees( int n, DegSeqPathNumHash & treeHash )
+void getTrees( unsigned int n, DegSeqPathNumHash & treeHash )
 {
 	Tree t;
 	TreeGenerator treeGen( n );
@@ -133,7 +133,7 @@ void getTrees( int n, DegSeqPathNumHash & treeHash )
 	}
 }
 
-void computeKSlices( int n, int k, SubsetDeltaGenerator & subsetGen, const vector<Tree> & treeList, vector<kSlice> & kSliceList )
+void computeKSlices( unsigned int n, unsigned int k, SubsetDeltaGenerator & subsetGen, const vector<Tree> & treeList, vector<kSlice> & kSliceList )
 {
 	int additive = ( k % 2 == 0 ) ? 1 : -1;
 
@@ -148,7 +148,7 @@ void computeKSlices( int n, int k, SubsetDeltaGenerator & subsetGen, const vecto
 		kSlice currSlice;
 		Tree t( n );
 
-		for( unsigned int i = 0; i < edgeSet.size(); i++ )
+		for( unsigned int i = 0; i < k; i++ )
 		{
 			t.addEdge( edgeSet[i].u, edgeSet[i].v );
 		}
@@ -175,7 +175,7 @@ void computeKSlices( int n, int k, SubsetDeltaGenerator & subsetGen, const vecto
 
 void cullTreesByKSlice( vector<Tree> & treeList, const vector<kSlice> & kSliceList )
 {
-	set<int> treesToKeep;
+	set<unsigned int> treesToKeep;
 	for( unsigned int i = 0; i < kSliceList.size(); i++ )
 	{
 		for( unsigned int j = i + 1; j < kSliceList.size(); j++ )
@@ -205,7 +205,7 @@ void cullTreesByKSlice( vector<Tree> & treeList, const vector<kSlice> & kSliceLi
 	}
 
 	vector<Tree> treesKept;
-	for( set<int>::iterator it = treesToKeep.begin();
+	for( set<unsigned int>::iterator it = treesToKeep.begin();
 		 it != treesToKeep.end();
 		 ++it )
 	{
@@ -216,7 +216,7 @@ void cullTreesByKSlice( vector<Tree> & treeList, const vector<kSlice> & kSliceLi
 	debugMessage(( "\tRemoved: %d, Remaining: %d\n", (int)( kSliceList.size() - treesKept.size() ), (int)treeList.size() ));
 }
 
-void testConjecture( int n )
+void testConjecture( unsigned int n )
 {
 	DegSeqPathNumHash treeHash;
 	getTrees( n, treeHash );
@@ -231,7 +231,7 @@ void testConjecture( int n )
 		vector<Tree> treeList = it->second;
 		debugMessage(( "Working with degSeq = %s, pathNums = %s :: count = %d\n", vectorToString( degSeq ).c_str(), vectorToString( numPaths ).c_str(), (int)treeList.size() ));
 
-		int k = 3;
+		unsigned int k = 3;
 		while( k < n and treeList.size() > 1 )
 		{
 			debugMessage(( "k = %d\n", k ));

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "DisjointSet.hpp"
 
 struct Edge
 {
@@ -40,6 +41,7 @@ class Tree
 		unsigned int	mOrder;
 		unsigned char	*mAdj;		// Adjacency matrix
 		unsigned int	*mDegrees;
+		DisjointSet		*mComponents;
 };
 
 #endif
