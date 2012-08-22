@@ -1,4 +1,5 @@
 #include "DisjointSet.hpp"
+#include "Debug.hpp"
 #include <iostream>
 #include <cstring>
 #include <algorithm>
@@ -36,10 +37,7 @@ DisjointSet::~DisjointSet()
 
 void DisjointSet::setUnion( unsigned int x, unsigned int y )
 {
-	if( x == y || x >= mNumItems || y >= mNumItems )
-	{
-		return;
-	}
+	fatalAssert( x != y && x < mNumItems && y < mNumItems, "Failure in setUnion()." );
 
 	if( isRepresentative( x ) )
 	{
@@ -91,6 +89,8 @@ void DisjointSet::setUnion( unsigned int x, unsigned int y )
 
 unsigned int DisjointSet::find( unsigned int x ) const
 {
+	fatalAssert( x < mNumElements, "You tried to make find() cause a segfault." );
+
 	unsigned int curr = x;
 	while( !isRepresentative( curr ) )
 	{
@@ -102,6 +102,8 @@ unsigned int DisjointSet::find( unsigned int x ) const
 
 void DisjointSet::split( unsigned int x, unsigned int y )
 {
+	fatalAssert( x != y && x < mNumItems && y < mNumItems, "Failure in split()." );
+	
 	if( mParents[x] == y )
 	{
 		unsigned int curr = y;
