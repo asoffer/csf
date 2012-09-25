@@ -10,8 +10,8 @@ TreeGenerator::TreeGenerator( unsigned int numVertices ) :
 	mNumVertices( numVertices ),
 	firstTime( true )
 {
-	L = new int[mNumVertices];
-	currentLevelSequence = new int[numVertices];
+	L = new unsigned int[mNumVertices];
+	currentLevelSequence = new unsigned int[numVertices];
 }
 
 TreeGenerator::~TreeGenerator()
@@ -37,13 +37,7 @@ bool TreeGenerator::nextTree( Tree & t )
 		generateNextLevelSequence();
 	}
 
-	Tree tree( mNumVertices );
-	for( unsigned int i = 2; i <= mNumVertices; i++ )
-	{
-		unsigned int u = i - 1;
-		unsigned int v = currentLevelSequence[i - 1] - 1;
-		tree.addEdge( u, v );
-	}
+	Tree tree( currentLevelSequence, mNumVertices );
 	
 	t = tree;
 	return true;
@@ -175,7 +169,7 @@ void TreeGenerator::generateNextLevelSequence()
 		else
 		{
 			p = i;
-			if( L[i - 1] == oldlq )
+			if( L[i - 1] == (unsigned int)oldlq )
 			{
 				q = oldwq;
 			}

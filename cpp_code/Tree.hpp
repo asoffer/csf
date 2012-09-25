@@ -15,11 +15,14 @@ class Tree
 	public:
 		Tree();
 		Tree( unsigned int order );
+		Tree( unsigned int *levels, unsigned int order );
 		Tree( const Tree & that );
 		~Tree();
 
+		void buildAdjacency();
+		void destroyAdjacency();
+
 		unsigned int getOrder() const { return mOrder; };
-		unsigned int getDegree( unsigned int v ) const { if( v < mOrder ) return mDegrees[v]; return 0; };
 
 		bool adjacent( unsigned int u, unsigned int v ) const;
 		void addEdge( unsigned int u, unsigned int v );
@@ -39,7 +42,7 @@ class Tree
 
 		unsigned int	mOrder;
 		unsigned char	*mAdj;		// Adjacency matrix
-		unsigned int	*mDegrees;
+		unsigned int	*mLevels;
 };
 
 #endif

@@ -16,8 +16,8 @@ class TreeGenerator
 
 	private:
 		unsigned int	mNumVertices;
-		int				*L;
-		int				*currentLevelSequence;
+		unsigned int	*L;
+		unsigned int	*currentLevelSequence;
 
 		int				p;
 		int				q;

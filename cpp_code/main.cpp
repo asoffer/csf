@@ -37,10 +37,10 @@ string vectorToString( const vector<unsigned int> & v )
 
 void csf( const Tree & t, CsfHash & csf );
 void testCsf();
-void getTrees( int n, DegSeqPathNumHash & treeHash );
-void computeKSlices( int n, int k, SubsetDeltaGenerator & subsetGen, const vector<Tree> & treeList, vector<kSlice> & kSliceList ); 
+void getTrees( unsigned int n, DegSeqPathNumHash & treeHash );
+void computeKSlices( unsigned int n, int k, SubsetDeltaGenerator & subsetGen, vector<Tree> & treeList, vector<kSlice> & kSliceList ); 
 void cullTreesByKSlice( vector<Tree> & treeList, const vector<kSlice> & kSliceList );
-void testConjecture( int n );
+void testConjecture( unsigned int n );
 
 int main( int argc, char **argv )
 {
@@ -50,75 +50,13 @@ int main( int argc, char **argv )
 		return 0;
 	}
 
-	int n = atoi( argv[1] );
+	unsigned int n = atoi( argv[1] );
 	testConjecture( n );
 	//testCsf();
 	return 0;
 }
 
-void testCsf()
-{
-	Tree t( 15 );
-
-	t.addEdge( 0, 13 );
-	t.addEdge( 1, 4 );
-	t.addEdge( 2, 12 );
-	t.addEdge( 3, 5 );
-	t.addEdge( 4, 8 );
-	t.addEdge( 5, 12 );
-	t.addEdge( 6, 10 );
-	t.addEdge( 7, 9 );
-	t.addEdge( 7, 12 );
-	t.addEdge( 8, 10 );
-	t.addEdge( 8, 11 );
-	t.addEdge( 8, 13 );
-	t.addEdge( 11, 12 );
-	t.addEdge( 11, 14 );
-
-	CsfHash CSF;
-	csf( t, CSF );
-}
-
-void csf( const Tree & t, CsfHash & csf )
-{
-	unsigned long long g1;
-	unsigned long long g2;
-	unsigned long long diff;
-
-	int n = t.getOrder();
-	Tree g( n );
-
-	vector<Edge> edgeSet = t.getEdges();
-
-	vector<unsigned int> componentSizes;
-	g.getConnectedComponentSizes( componentSizes );
-	csf[componentSizes] = 1;
-
-	int sign = -1;
-	unsigned long long powersetCardinality = pow( 2, edgeSet.size() );
-	for( unsigned long long i = 1; i < powersetCardinality; i++ )
-	{
-		g1 = getGrayCode( i - 1 );
-		g2 = getGrayCode( i );
-		diff = g1 ^ g2;
-
-		Edge e = edgeSet[log2( diff )];
-		if( ( diff & g2 ) == diff )
-		{
-			g.addEdge( e.u, e.v );
-		}
-		else
-		{
-			g.deleteEdge( e.u, e.v );
-		}
-
-		g.getConnectedComponentSizes( componentSizes );
-		csf[componentSizes] += sign;
-		sign = -sign;
-	}
-}
-
-void getTrees( int n, DegSeqPathNumHash & treeHash )
+void getTrees( unsigned int n, DegSeqPathNumHash & treeHash )
 {
 	Tree t;
 	TreeGenerator treeGen( n );
@@ -128,27 +66,31 @@ void getTrees( int n, DegSeqPathNumHash & treeHash )
 	while( treeGen.nextTree( t ) )
 	{
 		t.getDegreeSequence( degSeq );
+		t.buildAdjacency();
 		t.getPathNums( pathNums );
+		t.destroyAdjacency();
 		treeHash[ make_pair( degSeq, pathNums ) ].push_back( t );
 	}
 }
 
-void computeKSlices( int n, int k, SubsetDeltaGenerator & subsetGen, const vector<Tree> & treeList, vector<kSlice> & kSliceList )
+void computeKSlices( unsigned int n, unsigned int k, SubsetDeltaGenerator & subsetGen, vector<Tree> & treeList, vector<kSlice> & kSliceList )
 {
 	int additive = ( k % 2 == 0 ) ? 1 : -1;
 
 	unsigned int numSubsetsOfLenK = subsetGen.getNumSubsetsOfFixedLength( k );
 	const SubsetDelta * deltas = subsetGen.getDeltasForSubsetsOfFixedLength( k );
 
-	for( vector<Tree>::const_iterator it2 = treeList.begin();
+	for( vector<Tree>::iterator it2 = treeList.begin();
 		 it2 != treeList.end();
 		 ++it2 )
 	{
+		it2->buildAdjacency();
 		vector<Edge> edgeSet = it2->getEdges();
+		it2->destroyAdjacency();
 		kSlice currSlice;
 		Tree t( n );
 
-		for( unsigned int i = 0; i < edgeSet.size(); i++ )
+		for( unsigned int i = 0; i < k; i++ )
 		{
 			t.addEdge( edgeSet[i].u, edgeSet[i].v );
 		}
@@ -216,7 +158,7 @@ void cullTreesByKSlice( vector<Tree> & treeList, const vector<kSlice> & kSliceLi
 	debugMessage(( "\tRemoved: %d, Remaining: %d\n", (int)( kSliceList.size() - treesKept.size() ), (int)treeList.size() ));
 }
 
-void testConjecture( int n )
+void testConjecture( unsigned int n )
 {
 	DegSeqPathNumHash treeHash;
 	getTrees( n, treeHash );
@@ -229,9 +171,9 @@ void testConjecture( int n )
 		vector<unsigned int> degSeq = it->first.first;
 		vector<unsigned int> pathNums = it->first.second;
 		vector<Tree> treeList = it->second;
-		debugMessage(( "Working with degSeq = %s, pathNums = %s :: count = %d\n", vectorToString( degSeq ).c_str(), vectorToString( numPaths ).c_str(), (int)treeList.size() ));
+		debugMessage(( "Working with degSeq = %s, pathNums = %s :: count = %d\n", vectorToString( degSeq ).c_str(), vectorToString( pathNums ).c_str(), (int)treeList.size() ));
 
-		int k = 3;
+		unsigned int k = 3;
 		while( k < n and treeList.size() > 1 )
 		{
 			debugMessage(( "k = %d\n", k ));
@@ -250,8 +192,11 @@ void testConjecture( int n )
 			cout << "Degree sequence: " << vectorToString( degSeq ) << endl;
 			for( unsigned int i = 0; i < treeList.size(); i++ )
 			{
+				treeList[i].buildAdjacency();
 				treeList[i].print(); 
+				treeList[i].destroyAdjacency();
 			}
 		}
 	}
 }
+
