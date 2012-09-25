@@ -4,6 +4,7 @@
 #include <queue>
 #include <algorithm>
 #include <cstring>
+#include <cstdlib>
 #include <sstream>
 #include <string>
 #include <iostream>
@@ -18,43 +19,60 @@ Tree::Tree() :
 
 Tree::Tree( unsigned int order ) :
 	mOrder( order ),
+	mAdj( NULL ),
 	mLevels( NULL )
 {
-	mAdj = new unsigned char[mOrder * mOrder];
+	mAdj = new(std::nothrow) unsigned char[mOrder * mOrder];
+	if( mAdj == NULL )
+	{
+		std::cerr << "Ran out of memory!" << std::endl;
+		exit( 1 );
+	}
 	memset( mAdj, 0, sizeof( unsigned char ) * mOrder * mOrder );
 }
 
 Tree::Tree( unsigned int *levels, unsigned int order ) :
 	mOrder( order ),
-	mAdj( NULL )
+	mAdj( NULL ),
+	mLevels( NULL )
 {
-	mLevels = new unsigned int[mOrder];
+	mLevels = new(std::nothrow) unsigned int[mOrder];
+	if( mLevels == NULL )
+	{
+		std::cerr << "Ran out of memory!" << std::endl;
+		exit( 1 );
+	}
 	memcpy( mLevels, levels, sizeof( unsigned int ) * mOrder );
 }
 
-Tree::Tree( const Tree & that )
+Tree::Tree( const Tree & that ) :
+	mOrder( that.mOrder ),
+	mAdj( NULL ),
+	mLevels( NULL )
 {
 	mOrder = that.mOrder;
 	
 	if( that.mLevels != NULL )
 	{
-		mLevels = new unsigned int[mOrder];
+		mLevels = new(std::nothrow) unsigned int[mOrder];
+		if( mLevels == NULL )
+		{
+			std::cerr << "Ran out of memory!" << std::endl;
+			exit( 1 );
+		}
 		memcpy( mLevels, that.mLevels, sizeof( unsigned int ) * that.mOrder );
-	}
-	else
-	{
-		mLevels = NULL;
 	}
 
 	if( that.mAdj != NULL )
 	{
 		unsigned int size = mOrder * mOrder;
-		mAdj = new unsigned char[size];
+		mAdj = new(std::nothrow) unsigned char[size];
+		if( mAdj == NULL )
+		{
+			std::cerr << "Ran out of memory!" << std::endl;
+			exit( 1 );
+		}
 		memcpy( mAdj, that.mAdj, sizeof( unsigned char ) * size );
-	}
-	else
-	{
-		mAdj = NULL;
 	}
 }
 
@@ -76,7 +94,12 @@ void Tree::buildAdjacency()
 {
 	fatalAssert( mAdj == NULL, "Trying to build a tree that has already been built!" );
 
-	mAdj = new unsigned char[mOrder * mOrder];
+	mAdj = new(std::nothrow) unsigned char[mOrder * mOrder];
+	if( mAdj == NULL )
+	{
+		std::cerr << "Ran out of memory!" << std::endl;
+		exit( 1 );
+	}
 	memset( mAdj, 0, sizeof( unsigned char ) * mOrder * mOrder );
 	for( unsigned int i = 2; i <= mOrder; i++ )
 	{
@@ -241,7 +264,12 @@ void Tree::getPathNums( std::vector<unsigned int> & pathNums ) const
 		pathNums.push_back( 0 );
 	}
 
-	bool * visited = new bool[mOrder];
+	bool * visited = new(std::nothrow) bool[mOrder];
+	if( visited == NULL )
+	{
+		std::cerr << "Ran out of memory!" << std::endl;
+		exit( 1 );
+	}
 	for( unsigned int i = 0; i < mOrder; i++ )
 	{
 		memset( visited, 0, sizeof( bool ) * mOrder ); 
@@ -274,7 +302,12 @@ Tree & Tree::operator=( const Tree & that )
 		mOrder = that.mOrder;
 
 		delete [] mLevels;
-		mLevels = new unsigned int[mOrder];
+		mLevels = new(std::nothrow) unsigned int[mOrder];
+		if( mLevels == NULL )
+		{
+			std::cerr << "Ran out of memory!" << std::endl;
+			exit( 1 );
+		}
 		memcpy( mLevels, that.mLevels, sizeof( unsigned int ) * mOrder );
 
 		if( mAdj != NULL )
@@ -284,7 +317,12 @@ Tree & Tree::operator=( const Tree & that )
 		if( that.mAdj != NULL )
 		{
 			int size = mOrder * mOrder;
-			mAdj = new unsigned char[size];
+			mAdj = new(std::nothrow) unsigned char[size];
+			if( mAdj == NULL )
+			{
+				std::cerr << "Ran out of memory!" << std::endl;
+				exit( 1 );
+			}
 			memcpy( mAdj, that.mAdj, sizeof( unsigned char ) * ( size ) );
 		}
 	}

@@ -1,8 +1,8 @@
 #include "TreeGenerator.hpp"
 #include <cstring>
 #include <climits>
-
 #include <iostream>
+#include <cstdlib>
 #include <vector>
 using namespace std;
 
@@ -10,8 +10,13 @@ TreeGenerator::TreeGenerator( unsigned int numVertices ) :
 	mNumVertices( numVertices ),
 	firstTime( true )
 {
-	L = new unsigned int[mNumVertices];
-	currentLevelSequence = new unsigned int[numVertices];
+	L = new(std::nothrow) unsigned int[mNumVertices];
+	currentLevelSequence = new(std::nothrow) unsigned int[numVertices];
+	if( L == NULL || currentLevelSequence == NULL )
+	{
+		std::cerr << "Ran out of memory!" << std::endl;
+		exit( 1 );
+	}
 }
 
 TreeGenerator::~TreeGenerator()

@@ -1,6 +1,8 @@
 #include "SubsetDeltaGenerator.hpp"
 #include <cstddef>
 #include <cstring>
+#include <iostream>
+#include <cstdlib>
 
 SubsetDeltaGenerator::SubsetDeltaGenerator( unsigned int n )
 {
@@ -65,8 +67,13 @@ const SubsetDelta* const SubsetDeltaGenerator::getDeltasForSubsetsOfFixedLength(
 		}
 
 		unsigned int numSubsets = getNumSubsetsOfFixedLength( k );
-		mDeltas = new SubsetDelta[numSubsets];
-		mCurrSubset = new unsigned int[k];
+		mDeltas = new(std::nothrow) SubsetDelta[numSubsets];
+		mCurrSubset = new(std::nothrow) unsigned int[k];
+		if( mDeltas == NULL || mCurrSubset == NULL )
+		{
+			std::cerr << "Ran out of memory!" << std::endl;
+			exit( 1 );
+		}
 		
 		for( unsigned int i = 0; i < k; i++ )
 		{
