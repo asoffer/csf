@@ -39,56 +39,24 @@ void DisjointSet::setUnion( unsigned int x, unsigned int y )
 {
 	fatalAssert( x != y && x < mNumItems && y < mNumItems, "Failure in setUnion()." );
 
-	// If they're both representatives, make the bigger one the parent
-	if( isRepresentative( x ) && isRepresentative( y ) )
-	{
-		if( mSizes[x] >= mSizes[y] )
-		{
-			mParents[y] = x;
-			mSizes[x] += mSizes[y];
-		}
-		else
-		{
-			mParents[x] = y;
-			mSizes[y] += mSizes[x];
-		}
-	}
-	// If at least one of them is a representative, make the
-	// representative point to the other, because it is easier.
-	else if( isRepresentative( x ) || isRepresentative( y ) )
-	{
-		unsigned int rep = ( isRepresentative( x ) ? x : y );
-		unsigned int nonRep = ( isRepresentative( x ) ? y : x );
-
-		mParents[rep] = nonRep;
-
-		unsigned int curr = nonRep;
-		while( !isRepresentative( curr ) )
-		{
-			mSizes[curr] += mSizes[rep];
-			curr = mParents[curr];
-		}
-
-		mSizes[curr] += mSizes[rep];
-	}
-	// Otherwise, both are non-representatives, so they both need
-	// to be rebased. This makes them both representatives, so
-	// point the smaller toward the larger.
-	else
+	if( !isRepresentative( x ) )
 	{
 		rebase( x );
+	}
+	if( !isRepresentative( y ) )
+	{
 		rebase( y );
-		
-		if( mSizes[x] >= mSizes[y] )
-		{
-			mParents[y] = x;
-			mSizes[x] += mSizes[y];
-		}
-		else
-		{
-			mParents[x] = y;
-			mSizes[y] += mSizes[x];
-		}
+	}
+
+	if( mSizes[x] >= mSizes[y] )
+	{
+		mParents[y] = x;
+		mSizes[x] += mSizes[y];
+	}
+	else
+	{
+		mParents[x] = y;
+		mSizes[y] += mSizes[x];
 	}
 }
 
@@ -108,33 +76,19 @@ unsigned int DisjointSet::find( unsigned int x ) const
 void DisjointSet::split( unsigned int x, unsigned int y )
 {
 	fatalAssert( x != y && x < mNumItems && y < mNumItems, "Failure in split()." );
-	
-	if( mParents[x] == y )
+	fatalAssert( mParents[x] == y || mParents[y] == x, "Pointless to split two sets which are already disjoint" );
+
+	unsigned int parent = ( mParents[x] == y ? y : x );
+	unsigned int child = ( mParents[x] == y ? x : y );
+
+	unsigned int curr = parent;
+	while( !isRepresentative( curr ) )
 	{
-		unsigned int curr = y;
-		while( !isRepresentative( curr ) )
-		{
-			mSizes[curr] -= mSizes[x];
-			curr = mParents[curr];
-		}
-
-		mSizes[curr] -= mSizes[x];
-
-		mParents[x] = x;
+		mSizes[curr] -= mSizes[child];
+		curr = mParents[curr];
 	}
-	else if( mParents[y] == x )
-	{
-		unsigned int curr = x;
-		while( !isRepresentative( curr ) )
-		{
-			mSizes[curr] -= mSizes[y];
-			curr = mParents[curr];
-		}
-
-		mSizes[curr] -= mSizes[y];
-
-		mParents[y] = y;
-	}
+	mSizes[curr] -= mSizes[x];
+	mParents[child] = child;
 }
 
 void DisjointSet::getSetSizes( std::vector<unsigned int> & sizes ) const

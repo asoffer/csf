@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <string>
-#include "DisjointSet.hpp"
 
 struct Edge
 {
@@ -28,7 +27,6 @@ class Tree
 
 		std::vector<Edge> getEdges() const;
 		void getDegreeSequence( std::vector<unsigned int> & degreeSeqnence ) const;
-		void getConnectedComponentSizes( std::vector<unsigned int> & componentSizes ) const;
 		void getPathNums( std::vector<unsigned int> & pathNums ) const;
 
 		void print() const;
@@ -41,7 +39,6 @@ class Tree
 		unsigned int	mOrder;
 		unsigned char	*mAdj;		// Adjacency matrix
 		unsigned int	*mDegrees;
-		DisjointSet		*mComponents;
 };
 
 #endif

@@ -7,6 +7,7 @@
 #include <cmath>
 #include "Tree.hpp"
 #include "TreeGenerator.hpp"
+#include "DisjointSet.hpp"
 #include "SubsetDeltaGenerator.hpp"
 #include "Debug.hpp"
 #include <iostream>
@@ -86,12 +87,12 @@ void csf( const Tree & t, CsfHash & csf )
 	unsigned long long diff;
 
 	int n = t.getOrder();
-	Tree g( n );
+	DisjointSet components( n );
 
 	vector<Edge> edgeSet = t.getEdges();
 
 	vector<unsigned int> componentSizes;
-	g.getConnectedComponentSizes( componentSizes );
+	components.getSetSizes( componentSizes );
 	csf[componentSizes] = 1;
 
 	int sign = -1;
@@ -105,14 +106,14 @@ void csf( const Tree & t, CsfHash & csf )
 		Edge e = edgeSet[log2( diff )];
 		if( ( diff & g2 ) == diff )
 		{
-			g.addEdge( e.u, e.v );
+			components.setUnion( e.u, e.v );
 		}
 		else
 		{
-			g.deleteEdge( e.u, e.v );
+			components.split( e.u, e.v );
 		}
 
-		g.getConnectedComponentSizes( componentSizes );
+		components.getSetSizes( componentSizes );
 		csf[componentSizes] += sign;
 		sign = -sign;
 	}
@@ -146,15 +147,16 @@ void computeKSlices( unsigned int n, unsigned int k, SubsetDeltaGenerator & subs
 	{
 		vector<Edge> edgeSet = it2->getEdges();
 		kSlice currSlice;
-		Tree t( n );
+		
+		DisjointSet components( n );		// Track connected components with a disjoint set
 
 		for( unsigned int i = 0; i < k; i++ )
 		{
-			t.addEdge( edgeSet[i].u, edgeSet[i].v );
+			components.setUnion( edgeSet[i].u, edgeSet[i].v );
 		}
 
 		vector<unsigned int> lambdaOfS;
-		t.getConnectedComponentSizes( lambdaOfS );
+		components.getSetSizes( lambdaOfS );
 		currSlice[lambdaOfS] += additive;
 
 		for( unsigned int i = 1; i < numSubsetsOfLenK; i++ )
@@ -162,10 +164,10 @@ void computeKSlices( unsigned int n, unsigned int k, SubsetDeltaGenerator & subs
 			Edge removeEdge = edgeSet[deltas[i].oldValue];
 			Edge addEdge = edgeSet[deltas[i].newValue];
 
-			t.deleteEdge( removeEdge.u, removeEdge.v );
-			t.addEdge( addEdge.u, addEdge.v );
+			components.split( removeEdge.u, removeEdge.v );
+			components.setUnion( addEdge.u, addEdge.v );
 
-			t.getConnectedComponentSizes( lambdaOfS );
+			components.getSetSizes( lambdaOfS );
 			currSlice[lambdaOfS] += additive;
 		}
 
@@ -229,7 +231,7 @@ void testConjecture( unsigned int n )
 		vector<unsigned int> degSeq = it->first.first;
 		vector<unsigned int> pathNums = it->first.second;
 		vector<Tree> treeList = it->second;
-		debugMessage(( "Working with degSeq = %s, pathNums = %s :: count = %d\n", vectorToString( degSeq ).c_str(), vectorToString( numPaths ).c_str(), (int)treeList.size() ));
+		debugMessage(( "Working with degSeq = %s, pathNums = %s :: count = %d\n", vectorToString( degSeq ).c_str(), vectorToString( pathNums ).c_str(), (int)treeList.size() ));
 
 		unsigned int k = 3;
 		while( k < n and treeList.size() > 1 )
