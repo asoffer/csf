@@ -39,57 +39,62 @@ void DisjointSet::setUnion( unsigned int x, unsigned int y )
 {
 	fatalAssert( x != y && x < mNumItems && y < mNumItems, "Failure in setUnion()." );
 
-	if( isRepresentative( x ) )
+	// If they're both representatives, make the bigger one the parent
+	if( isRepresentative( x ) && isRepresentative( y ) )
 	{
-		mParents[x] = y;
+		if( mSizes[x] >= mSizes[y] )
+		{
+			mParents[y] = x;
+			mSizes[x] += mSizes[y];
+		}
+		else
+		{
+			mParents[x] = y;
+			mSizes[y] += mSizes[x];
+		}
+	}
+	// If at least one of them is a representative, make the
+	// representative point to the other, because it is easier.
+	else if( isRepresentative( x ) || isRepresentative( y ) )
+	{
+		unsigned int rep = ( isRepresentative( x ) ? x : y );
+		unsigned int nonRep = ( isRepresentative( x ) ? y : x );
 
-		unsigned int curr = y;
+		mParents[rep] = nonRep;
+
+		unsigned int curr = nonRep;
 		while( !isRepresentative( curr ) )
 		{
-			mSizes[curr] += mSizes[x];
+			mSizes[curr] += mSizes[rep];
 			curr = mParents[curr];
 		}
 
-		mSizes[curr] += mSizes[x];
+		mSizes[curr] += mSizes[rep];
 	}
-	else if( isRepresentative( y ) )
-	{
-		mParents[y] = x;
-
-		unsigned int curr = x;
-		while( !isRepresentative( curr ) )
-		{
-			mSizes[curr] += mSizes[y];
-			curr = mParents[curr];
-		}
-
-		mSizes[curr] += mSizes[y];
-	}
+	// Otherwise, both are non-representatives, so they both need
+	// to be rebased. This makes them both representatives, so
+	// point the smaller toward the larger.
 	else
 	{
-		unsigned int parentOfX = mParents[x];
-
-		mParents[parentOfX] = x;
-		mParents[x] = y;
-
-		mSizes[parentOfX]--;
-		mSizes[x] += mSizes[parentOfX];
-		mSizes[y] += mSizes[x];
-
-		unsigned int curr = mParents[y];
-		while( !isRepresentative( curr ) )
+		rebase( x );
+		rebase( y );
+		
+		if( mSizes[x] >= mSizes[y] )
 		{
-			mSizes[curr] += mSizes[y];
-			curr = mParents[curr];
+			mParents[y] = x;
+			mSizes[x] += mSizes[y];
 		}
-
-		mSizes[curr] += mSizes[y];
+		else
+		{
+			mParents[x] = y;
+			mSizes[y] += mSizes[x];
+		}
 	}
 }
 
 unsigned int DisjointSet::find( unsigned int x ) const
 {
-	fatalAssert( x < mNumElements, "You tried to make find() cause a segfault." );
+	fatalAssert( x < mNumItems, "You tried to make find() cause a segfault." );
 
 	unsigned int curr = x;
 	while( !isRepresentative( curr ) )
@@ -174,4 +179,35 @@ DisjointSet & DisjointSet::operator=( const DisjointSet & that )
 	}
 
 	return *this;
+}
+
+void DisjointSet::rebase( unsigned int x )
+{
+	// If x is already a representative, we should terminate because this is a
+	// waste of a function call.
+	fatalAssert( !isRepresentative( x ), "Pointless to rebase a representative." );
+
+	// Essentially, this will boil down to a linked-list reversal, with some
+	// additional size-adjusting logic at the end. Start with the reversal.
+	unsigned int prev = x;
+	unsigned int curr = x;
+	unsigned int next = mParents[x];
+	while( !isRepresentative( curr ) )
+	{
+		mParents[curr] = prev;
+		prev = curr;
+		curr = next;
+		next = mParents[next];
+	}
+	mParents[curr] = prev;
+
+	// Now, adjust the sizes of the elements
+	unsigned int formerRepSize = mSizes[curr];
+	while( !isRepresentative( curr ) )
+	{
+		next = mParents[curr];
+		mSizes[curr] = formerRepSize - mSizes[next];
+		curr = next;
+	}
+	mSizes[curr] = formerRepSize;
 }

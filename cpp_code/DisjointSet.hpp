@@ -28,6 +28,9 @@ class DisjointSet
 		{
 			return mParents[x] == x;
 		};
+
+		// Make x the representative of its set
+		void rebase( unsigned int x );
 };
 
 #endif
