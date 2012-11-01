@@ -37,13 +37,7 @@ bool TreeGenerator::nextTree( Tree & t )
 		generateNextLevelSequence();
 	}
 
-	Tree tree( mNumVertices );
-	for( unsigned int i = 2; i <= mNumVertices; i++ )
-	{
-		unsigned int u = i - 1;
-		unsigned int v = currentLevelSequence[i - 1] - 1;
-		tree.addEdge( u, v );
-	}
+	Tree tree( mNumVertices, currentLevelSequence  );
 	
 	t = tree;
 	return true;
