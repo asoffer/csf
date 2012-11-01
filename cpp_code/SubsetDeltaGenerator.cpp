@@ -6,9 +6,7 @@ SubsetDeltaGenerator::SubsetDeltaGenerator( unsigned int n )
 {
 	this->n = n;
 	k = 0;
-	mNumSubsetsOfLengthK = 1;
 	mCurrSubset = NULL;
-	mDeltas = NULL;
 }
 
 SubsetDeltaGenerator::~SubsetDeltaGenerator()
@@ -17,67 +15,29 @@ SubsetDeltaGenerator::~SubsetDeltaGenerator()
 	{
 		delete [] mCurrSubset;
 	}
-	if( mDeltas != NULL )
-	{
-		delete [] mDeltas;
-	}
 }
 
-unsigned long long factorial( unsigned long long x )
+void SubsetDeltaGenerator::getDeltasForSubsetsOfFixedLength( unsigned int k, std::vector<SubsetDelta> & deltas )
 {
-	if( x <= 1 )
+	this->k = k;
+	mDeltas.clear();
+
+	if( mCurrSubset != NULL )
 	{
-		return 1;
+		delete [] mCurrSubset;
+		mCurrSubset = NULL;
 	}
 
-	unsigned long long r = 1;
-	for( unsigned long long i = 2; i <= x; i++ )
+	mCurrSubset = new unsigned int[k];
+	for( unsigned int i = 0; i < k; i++ )
 	{
-		r *= i;
+		mCurrSubset[i] = i;
 	}
 
-	return r;
-}
+	process( 1, 1 );
+	forward( 1, 0 );
 
-unsigned long long SubsetDeltaGenerator::getNumSubsetsOfFixedLength( unsigned int k ) const
-{
-	return factorial( n ) / ( factorial( k ) * factorial( n - k ) );
-}
-
-const SubsetDelta* const SubsetDeltaGenerator::getDeltasForSubsetsOfFixedLength( unsigned int k )
-{
-	if( this->k == k )
-	{
-		return mDeltas;
-	}
-	else
-	{
-		this->k = k;
-		mNumSubsetsOfLengthK = 0;
-
-		if( mDeltas != NULL )
-		{
-			delete [] mDeltas;
-		}
-		if( mCurrSubset != NULL )
-		{
-			delete [] mCurrSubset;
-		}
-
-		unsigned int numSubsets = getNumSubsetsOfFixedLength( k );
-		mDeltas = new SubsetDelta[numSubsets];
-		mCurrSubset = new unsigned int[k];
-		
-		for( unsigned int i = 0; i < k; i++ )
-		{
-			mCurrSubset[i] = i;
-		}
-
-		process( 1, 1 );
-		forward( 1, 0 );
-
-		return mDeltas;
-	}
+	deltas = mDeltas;
 }
 
 void SubsetDeltaGenerator::forward( int pointer, int difference )
@@ -123,7 +83,7 @@ void SubsetDeltaGenerator::process( int posChanged, int newValue )
 	SubsetDelta d;
 	d.oldValue = mCurrSubset[posChanged - 1];
 	d.newValue = newValue - 1;
-	mDeltas[mNumSubsetsOfLengthK++] = d;
+	mDeltas.push_back( d );
 
 	mCurrSubset[posChanged - 1] = newValue - 1;
 }

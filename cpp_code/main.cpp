@@ -13,15 +13,9 @@
 #include <iostream>
 using namespace std;
 
-typedef map< vector<unsigned int>, int> CsfHash;
 typedef map< vector<unsigned int>, vector<Tree> > TreeByDegSeqHash;
 typedef map< pair< vector<unsigned int>, vector<unsigned int> >, vector<Tree> > DegSeqPathNumHash;
 typedef map< vector<unsigned int>, int> kSlice;
-
-unsigned long long getGrayCode( unsigned long long n )
-{
-	return ( ( n >> 1 ) ^ n );
-}
 
 string vectorToString( const vector<unsigned int> & v )
 {
@@ -36,8 +30,6 @@ string vectorToString( const vector<unsigned int> & v )
 	return result;
 }
 
-void csf( const Tree & t, CsfHash & csf );
-void testCsf();
 void getTrees( unsigned int n, DegSeqPathNumHash & treeHash );
 void computeKSlices( unsigned int n, unsigned int k, SubsetDeltaGenerator & subsetGen, const vector<Tree> & treeList, vector<kSlice> & kSliceList ); 
 void cullTreesByKSlice( vector<Tree> & treeList, const vector<kSlice> & kSliceList );
@@ -53,70 +45,7 @@ int main( int argc, char **argv )
 
 	unsigned int n = atoi( argv[1] );
 	testConjecture( n );
-	//testCsf();
 	return 0;
-}
-
-void testCsf()
-{
-	Tree t( 15 );
-
-	t.addEdge( 0, 13 );
-	t.addEdge( 1, 4 );
-	t.addEdge( 2, 12 );
-	t.addEdge( 3, 5 );
-	t.addEdge( 4, 8 );
-	t.addEdge( 5, 12 );
-	t.addEdge( 6, 10 );
-	t.addEdge( 7, 9 );
-	t.addEdge( 7, 12 );
-	t.addEdge( 8, 10 );
-	t.addEdge( 8, 11 );
-	t.addEdge( 8, 13 );
-	t.addEdge( 11, 12 );
-	t.addEdge( 11, 14 );
-
-	CsfHash CSF;
-	csf( t, CSF );
-}
-
-void csf( const Tree & t, CsfHash & csf )
-{
-	unsigned long long g1;
-	unsigned long long g2;
-	unsigned long long diff;
-
-	int n = t.getOrder();
-	DisjointSet components( n );
-
-	vector<Edge> edgeSet = t.getEdges();
-
-	vector<unsigned int> componentSizes;
-	components.getSetSizes( componentSizes );
-	csf[componentSizes] = 1;
-
-	int sign = -1;
-	unsigned long long powersetCardinality = pow( 2, edgeSet.size() );
-	for( unsigned long long i = 1; i < powersetCardinality; i++ )
-	{
-		g1 = getGrayCode( i - 1 );
-		g2 = getGrayCode( i );
-		diff = g1 ^ g2;
-
-		Edge e = edgeSet[log2( diff )];
-		if( ( diff & g2 ) == diff )
-		{
-			components.setUnion( e.u, e.v );
-		}
-		else
-		{
-			components.split( e.u, e.v );
-		}
-
-		components.getSetSizes( componentSizes );
-		csf[componentSizes] += sign;
-		sign = -sign;
-	}
 }
 
 void getTrees( unsigned int n, DegSeqPathNumHash & treeHash )
@@ -138,8 +67,8 @@ void computeKSlices( unsigned int n, unsigned int k, SubsetDeltaGenerator & subs
 {
 	int additive = ( k % 2 == 0 ) ? 1 : -1;
 
-	unsigned int numSubsetsOfLenK = subsetGen.getNumSubsetsOfFixedLength( k );
-	const SubsetDelta * deltas = subsetGen.getDeltasForSubsetsOfFixedLength( k );
+	vector<SubsetDelta> deltas;
+	subsetGen.getDeltasForSubsetsOfFixedLength( k, deltas );
 
 	for( vector<Tree>::const_iterator it2 = treeList.begin();
 		 it2 != treeList.end();
@@ -159,7 +88,7 @@ void computeKSlices( unsigned int n, unsigned int k, SubsetDeltaGenerator & subs
 		components.getSetSizes( lambdaOfS );
 		currSlice[lambdaOfS] += additive;
 
-		for( unsigned int i = 1; i < numSubsetsOfLenK; i++ )
+		for( unsigned int i = 1; i < deltas.size(); i++ )
 		{
 			Edge removeEdge = edgeSet[deltas[i].oldValue];
 			Edge addEdge = edgeSet[deltas[i].newValue];
