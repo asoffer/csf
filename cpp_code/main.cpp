@@ -31,6 +31,7 @@ unsigned int		n;
 unsigned int		numThreads;
 pthread_t			myThreads[MAX_NUM_THREADS];
 pthread_mutex_t		treeQueueMutex;
+pthread_mutex_t		outputMutex;
 
 void getTrees( unsigned int n );
 void *worker( void *arg );
@@ -178,11 +179,13 @@ void *worker( void *arg )
 
 		if( treeList.size() > 1 )
 		{
-			cout << "COUNTEREXAMPLE FOUND!" << endl;
-			for( unsigned int i = 0; i < treeList.size(); i++ )
-			{
-				treeList[i].print(); 
-			}
+			pthread_mutex_lock( &outputMutex );
+				cout << "COUNTEREXAMPLE FOUND!" << endl;
+				for( unsigned int i = 0; i < treeList.size(); i++ )
+				{
+					treeList[i].print(); 
+				}
+			pthread_mutex_unlock( &outputMutex );
 		}
 	}
 
@@ -222,6 +225,7 @@ void testConjecture( unsigned int n )
 	// Initialize thread attributes and mutices.
 	pthread_attr_t	threadAttributes;
 	pthread_mutex_init( &treeQueueMutex, NULL );
+	pthread_mutex_init( &outputMutex, NULL );
 	pthread_attr_init( &threadAttributes );
 	pthread_attr_setdetachstate( &threadAttributes, PTHREAD_CREATE_JOINABLE );
 
