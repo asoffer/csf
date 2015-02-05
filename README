@@ -1,6 +1,6 @@
 ######################################
 # Description
-#################################
+######################################
 
 This was a project I undertook while an undergrad at KU under the direction of Dr. Jeremy Martin. The goal was to test Richard Stanley's conjecture that the chromatic symmetric function (CSF) is an isomorphism invariant for trees. Jeremy and colleagues cite in [1] the results of Li-Yang Tan, who showed that trees with <= 23 vertices have different CSFs using a brute-force search. Unfortunately, his code is no longer available.
 
