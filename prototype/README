@@ -1,0 +1,8 @@
+Richard Stanley conjectured that no two trees have the same chromatic symmetric function. I wrote this prototype to test this conjecture computationally.
+
+You can load/run a .py or .pyx file in the Sage terminal using the command
+
+load('<filepath>')
+
+Or you can copy/paste the text in these files into the online Sage Notebook and run them there.
+
