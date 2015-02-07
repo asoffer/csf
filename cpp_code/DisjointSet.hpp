@@ -5,32 +5,32 @@
 
 class DisjointSet
 {
-	public:
-		DisjointSet( unsigned int numItems );
-		DisjointSet( const DisjointSet & that );
-		~DisjointSet();
+    public:
+        DisjointSet(unsigned int numItems);
+        DisjointSet(const DisjointSet & that);
+        ~DisjointSet();
 
-		void setUnion( unsigned int x, unsigned int y );
-		unsigned int find( unsigned int x ) const;
-		void split( unsigned int x, unsigned int y );
+        void setUnion(unsigned int x, unsigned int y);
+        unsigned int find(unsigned int x) const;
+        void split(unsigned int x, unsigned int y);
 
-		void getSetSizes( std::vector<unsigned int> & sizes ) const;
-		void print() const;
+        void getSetSizes(std::vector<unsigned int> & sizes) const;
+        void print() const;
 
-		DisjointSet & operator=( const DisjointSet & that );
+        DisjointSet & operator=(const DisjointSet & that);
 
-	private:
-		unsigned int mNumItems;
-		unsigned int *mParents;
-		unsigned int *mSizes;
+    private:
+        unsigned int mNumItems;
+        unsigned int *mParents;
+        unsigned int *mSizes;
 
-		bool isRepresentative( unsigned int x ) const
-		{
-			return mParents[x] == x;
-		};
+        bool isRepresentative(unsigned int x) const
+        {
+            return mParents[x] == x;
+        };
 
-		// Make x the representative of its set
-		void rebase( unsigned int x );
+        // Make x the representative of its set
+        void rebase(unsigned int x);
 };
 
 #endif

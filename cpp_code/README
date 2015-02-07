@@ -1,8 +1,21 @@
-This code tests the conjecture that no two non-isomorphic trees have the same chromatic symmetric function.
+This code tests the conjecture that no two non-isomorphic trees have the same
+chromatic symmetric function.
 
-To compile (on *nix system):
-	In a terminal window, navigate to the code's directory, and then type 'make' without the quotes. You'll need the g++ compiler, which should be installed on just about any *nix system.
+Written and tested on Linux.
 
-To run (once compiled):
-	Type './main X', without the quotes, where X is an integer. X will be the order of the trees you want the program to check.
+###############################################################################
+# How to compile
+###############################################################################
+1) Open a terminal window, navigate to the code's directory.
+2) Type 'make' without the quotes.
+
+Requires g++ compiler, which should be installed on most Linux systems.
+
+###############################################################################
+# How to run
+###############################################################################
+1) Compile first.
+2) Type './main X Y', without the quotes, where both X and Y are integers.
+   X - the order of the trees you want the program to check.
+   Y - the number of threads the process should use.
 
