@@ -1,21 +1,30 @@
+CXX = g++
+CXXFLAGS = -pthread -Wall
+
+release: CXXFLAGS += -O3
+release: main
+
+debug: CXXFLAGS += -g -p
+debug: main
+
 main: main.o Tree.o TreeGenerator.o DisjointSet.o SubsetDeltaGenerator.o
-	g++ -O3 -g -pthread -o main main.o Tree.o DisjointSet.o TreeGenerator.o SubsetDeltaGenerator.o
+	$(CXX) $(CXXFLAGS) -o main main.o Tree.o DisjointSet.o TreeGenerator.o SubsetDeltaGenerator.o
 
 main.o: main.cpp Tree.cpp TreeGenerator.cpp DisjointSet.cpp SubsetDeltaGenerator.cpp
-	g++ -O3 -g -pthread -Wall -c main.cpp
+	$(CXX) $(CXXFLAGS) -c main.cpp
 
 Tree.o: Tree.cpp DisjointSet.cpp
-	g++ -O3 -g -pthread -Wall -c Tree.cpp
+	$(CXX) $(CXXFLAGS) -c Tree.cpp
 
 TreeGenerator.o: Tree.cpp TreeGenerator.cpp
-	g++ -O3 -g -pthread -Wall -c TreeGenerator.cpp
+	$(CXX) $(CXXFLAGS) -c TreeGenerator.cpp
 
 DisjointSet.o: DisjointSet.cpp
-	g++ -O3 -g -pthread -Wall -c DisjointSet.cpp
+	$(CXX) $(CXXFLAGS) -c DisjointSet.cpp
 
 SubsetDeltaGenerator.o: SubsetDeltaGenerator.cpp
-	g++ -O3 -g -pthread -Wall -c SubsetDeltaGenerator.cpp
+	$(CXX) $(CXXFLAGS) -c SubsetDeltaGenerator.cpp
 
 clean:
-	rm -f main *.o
+	rm -f main *.o gmon.out
 
