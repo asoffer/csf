@@ -6,7 +6,7 @@ This was a project I undertook while an undergrad at KU under the direction of D
 
 I've extended Tan's results to trees with <= 25 vertices, and also made my code freely available on Github.
 
-Calculating the chromatic symmetric function of a graph is computationally expensive. However, for trees, I have implemented a number of optimizations that make computing and comparing the CSFs feasible (even at n=25, where there are ~104 million trees to search through). Additionally, much of the computation is done in parallel. See the cpp_code folder for details.
+Calculating the chromatic symmetric function of a graph is computationally expensive. However, for trees, I have implemented a number of optimizations that make computing and comparing the CSFs feasible (even at n=25, where there are ~104 million trees to search through, see http://oeis.org/A000055). Additionally, much of the computation is done in parallel. See the cpp_code folder for details.
 
 ######################################
 # References
