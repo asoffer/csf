@@ -3,6 +3,11 @@
 
 #include "Tree.hpp"
 
+// Reference:
+// Robert Alan Wright, L. Bruce Richmond, Andrew M. Odlyzko, and Brendan D. McKay.
+// Constant time generation of free trees.
+// SIAM J. Comput., Vol. 15, No. 2, pages 540–548, 1986.
+
 class TreeGenerator
 {
     public:

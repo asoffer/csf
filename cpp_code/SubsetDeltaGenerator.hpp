@@ -3,6 +3,11 @@
 
 #include <vector>
 
+// Reference:
+// Peter Eades, Brendan McKay.
+// An Algorithm for Generating Subsets of a Fixed Size with a Strong Minimal Change Property.
+// Information Processing Letters 19, pages 131-133 (1984).
+
 struct SubsetDelta
 {
     unsigned int oldValue;
