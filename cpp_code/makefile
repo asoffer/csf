@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -pthread -Wall
+CXXFLAGS = -pthread -Wall -Wextra -std=c++11
 
 release: CXXFLAGS += -O3
 release: main

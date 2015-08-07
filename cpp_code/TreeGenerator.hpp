@@ -1,7 +1,7 @@
 #ifndef TREE_GENERATOR_HPP
 #define TREE_GENERATOR_HPP
 
-#include "Tree.hpp"
+#include "Tree.h"
 
 // Reference:
 // Robert Alan Wright, L. Bruce Richmond, Andrew M. Odlyzko, and Brendan D. McKay.
