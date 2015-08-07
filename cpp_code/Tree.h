@@ -15,12 +15,12 @@ class Tree {
         Tree(){};
         Tree(unsigned int order, int *levelSequence);
 
-//        unsigned int getOrder() const { return mOrder; };
+        inline uint size() const { return prufer.size() + 2; };
 //        unsigned int getDegree(unsigned int v) const { if(v < mOrder) return mDegrees[v]; return 0; };
 
 //        std::vector<Edge> getEdges() const;
-//        void getDegreeSequence(std::vector<unsigned int> & degreeSeqnence) const;
-//        void getPathNums(std::vector<unsigned int> & pathNums) const;
+        void degree_sequence(std::vector<uchar>& deg_seq) const;
+        void path_sequence(std::vector<ushort>& path_seq) const;
 
 //        void print() const;
 

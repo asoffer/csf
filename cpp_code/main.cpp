@@ -62,12 +62,12 @@ int main(int argc, char **argv)
 void getTrees(unsigned int n) {
     Tree t;
     TreeGenerator treeGen(n);
-    vector<unsigned int> degSeq;
-    vector<unsigned int> pathNums;
+    std::vector<uchar> degSeq;
+    std::vector<ushort> pathNums;
     
     while (treeGen.nextTree(t)) {
-        //t.getDegreeSequence(degSeq);
-        //t.getPathNums(pathNums);
+        t.degree_sequence(degSeq);
+        t.path_sequence(pathNums);
         //treeHash[ make_pair(degSeq, pathNums) ].push_back(t);
     }
 }
